@@ -1,36 +1,101 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Happy Birthday, Mommy Sonia 🎂
 
-## Getting Started
+A single-page birthday celebration site: countdown → reveal → photo tribute
+→ letter → live family guestbook.
 
-First, run the development server:
+## Run it locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Before September 22, visitors only see the countdown. To preview the
+reveal/gallery/letter/guestbook sections early without changing your
+system clock, open:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+http://localhost:3000/?preview=1
+```
 
-## Learn More
+(The real date check still runs normally for everyone else — `preview=1`
+only forces the post-countdown view for whoever has that link.)
 
-To learn more about Next.js, take a look at the following resources:
+## 1. Add the real photos
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Drop 8 images into `public/photos/` named `photo-01.jpg` through
+`photo-08.jpg` (see `public/photos/README.md`). Edit captions in
+`src/data/content.ts`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 2. Edit the letter
 
-## Deploy on Vercel
+Lives in `src/data/content.ts` — `LETTER_PARAGRAPHS`. Replace the
+placeholder text with the real thing before sharing the link. The
+guestbook itself starts empty on purpose — real messages from family
+are what fill it in once the link goes out.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 3. Set up the live guestbook (Firebase Firestore)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The guestbook needs a real, free Firebase project:
+
+1. Go to [console.firebase.google.com](https://console.firebase.google.com)
+   and create a new project (any name).
+2. In the project, go to **Build > Firestore Database > Create database**.
+   Start in **production mode** (rules are provided below), pick any
+   region.
+3. Go to **Firestore Database > Rules**, paste the contents of
+   `firestore.rules` from this repo, and click **Publish**.
+4. Go to **Project settings** (gear icon) > **General** > scroll to
+   **Your apps** > click the **</>** (web) icon to register a new web app.
+5. Copy the config values it gives you into a new `.env.local` file in
+   this folder (copy `.env.local.example` as a starting point):
+
+   ```
+   NEXT_PUBLIC_FIREBASE_API_KEY=...
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
+   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=...
+   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
+   NEXT_PUBLIC_FIREBASE_APP_ID=...
+   ```
+
+6. Restart `npm run dev`. The guestbook form will light up — messages
+   people submit show up live for everyone.
+
+If you already had an earlier version of this site running, it may have
+seeded four placeholder entries (Father/Sister/Ate/Titas) into your
+Firestore database before this was removed — delete those manually from
+**Firestore Database > Data > guestbook** in the console (doc IDs
+`seed-father`, `seed-sister`, `seed-ate`, `seed-titas`) since the app's
+write rules intentionally don't allow deleting from the client.
+
+Reactions (the 🎉 button on each message) need the updated
+`firestore.rules` in this repo re-pasted into **Firestore Database >
+Rules** and published — the original rules only allowed creating new
+entries, not incrementing a reaction count on existing ones.
+
+Until `.env.local` is set up, the rest of the site still works — the
+guestbook just shows a small setup notice instead of the form.
+
+**Note:** these `NEXT_PUBLIC_*` values are meant to be visible in the
+browser (that's how Firebase client SDKs work) — real access control comes
+from the Firestore rules in `firestore.rules`, which only allow adding new
+guestbook entries, not reading other Firebase data, editing, or deleting.
+
+## 4. Deploy
+
+Push this to a GitHub repo and import it on
+[vercel.com/new](https://vercel.com/new), or run `npx vercel` from this
+folder. Add the same `NEXT_PUBLIC_FIREBASE_*` environment variables in the
+Vercel project settings (Settings > Environment Variables) — `.env.local`
+is not deployed with your code.
+
+The site already sends a `noindex` header via `metadata.robots` in
+`src/app/layout.tsx`, so search engines won't pick up the private link.
+
+## Stack
+
+Next.js (App Router) + Tailwind CSS v4 + Firebase Firestore (guestbook) +
+Framer Motion (animations) + canvas-confetti (reveal).

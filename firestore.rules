@@ -1,0 +1,41 @@
+rules_version = '2';
+
+// Paste this into Firebase Console > Firestore Database > Rules, then Publish.
+// Anyone with the link can read the guestbook, add a new message, and bump
+// the reaction count on an existing one (by exactly +1 at a time, touching
+// no other field). Deleting or editing someone else's message is blocked —
+// do that from the console if it's ever needed.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /guestbook/{entryId} {
+      allow read: if true;
+
+      allow create: if request.resource.data.keys().hasAll(['name', 'message', 'createdAt'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 60
+        && request.resource.data.message is string
+        && request.resource.data.message.size() > 0
+        && request.resource.data.message.size() <= 500;
+
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reactions'])
+        && request.resource.data.reactions is int
+        && request.resource.data.reactions == (resource.data.reactions == null ? 0 : resource.data.reactions) + 1;
+
+      allow delete: if false;
+    }
+
+    // A single shared counter doc (id "excited") for the countdown page's
+    // "are you excited?" tap reaction. Only allows bumping count by
+    // exactly +1 at a time — no other field, no arbitrary values.
+    match /reactions/{reactionId} {
+      allow read: if true;
+
+      allow write: if request.resource.data.keys().hasOnly(['count'])
+        && request.resource.data.count is int
+        && request.resource.data.count == (
+             resource == null || resource.data.count == null ? 0 : resource.data.count
+           ) + 1;
+    }
+  }
+}
