@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react";
 import Countdown from "@/components/Countdown";
 import Reveal from "@/components/Reveal";
+import MakeAWish from "@/components/MakeAWish";
 import PhotoCarousel from "@/components/PhotoCarousel";
 import Letter from "@/components/Letter";
 import Guestbook from "@/components/Guestbook";
 import EarlyGuestbook from "@/components/EarlyGuestbook";
 import MarqueeBanner from "@/components/MarqueeBanner";
+import SongPlayer from "@/components/SongPlayer";
 import { BIRTHDAY_TARGET, MARQUEE_TEXT } from "@/data/content";
 
 type View = "loading" | "early-guestbook" | "countdown" | "reveal";
@@ -56,11 +58,14 @@ export default function BirthdaySite() {
     <>
       <Reveal />
       <MarqueeBanner text={MARQUEE_TEXT} />
+      <MakeAWish />
+      <MarqueeBanner text={MARQUEE_TEXT} />
       <PhotoCarousel />
       <MarqueeBanner text={MARQUEE_TEXT} />
       <Letter />
       <MarqueeBanner text={MARQUEE_TEXT} />
       <Guestbook />
+      <SongPlayer />
     </>
   );
 }

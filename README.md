@@ -42,14 +42,21 @@ Drop 8 images into `public/photos/` named `photo-01.jpg` through
 `photo-08.jpg` (see `public/photos/README.md`). Edit captions in
 `src/data/content.ts`.
 
-## 2. Edit the letter
+## 2. Add a song (optional)
+
+Drop an MP3 at `public/audio/song.mp3` and a floating "Play her song"
+button appears automatically in the bottom-right corner once the reveal
+happens — no code changes needed. Leave it out and the button just never
+shows up (no broken UI).
+
+## 3. Edit the letter
 
 Lives in `src/data/content.ts` — `LETTER_PARAGRAPHS`. Replace the
 placeholder text with the real thing before sharing the link. The
 guestbook itself starts empty on purpose — real messages from family
 are what fill it in once the link goes out.
 
-## 3. Set up the live guestbook (Firebase Firestore)
+## 4. Set up the live guestbook (Firebase Firestore)
 
 The guestbook needs a real, free Firebase project:
 
@@ -97,7 +104,7 @@ browser (that's how Firebase client SDKs work) — real access control comes
 from the Firestore rules in `firestore.rules`, which only allow adding new
 guestbook entries, not reading other Firebase data, editing, or deleting.
 
-## 4. Deploy
+## 5. Deploy
 
 Push this to a GitHub repo and import it on
 [vercel.com/new](https://vercel.com/new), or run `npx vercel` from this

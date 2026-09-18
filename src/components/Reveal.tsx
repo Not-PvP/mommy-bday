@@ -5,6 +5,7 @@ import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
 import { RECIPIENT_NAME } from "@/data/content";
 import Bunting from "@/components/Bunting";
+import VisitorCounter from "@/components/VisitorCounter";
 
 const BALLOON_COLORS = [
   "#cc8f3f",
@@ -171,6 +172,10 @@ export default function Reveal() {
           you, and messages from everyone who loves you.
         </motion.p>
       </motion.div>
+
+      <div className="relative z-10 mt-6">
+        <VisitorCounter />
+      </div>
 
       <motion.div
         initial={{ opacity: 0 }}
