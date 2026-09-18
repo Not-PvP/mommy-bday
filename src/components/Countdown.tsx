@@ -28,7 +28,7 @@ const CARD_ACCENTS = ["border-gold-400", "border-coral-400", "border-candy-300",
 
 function DigitFlip({ value }: { value: string }) {
   return (
-    <span className="relative inline-grid h-[1em] place-items-center overflow-hidden">
+    <span className="relative inline-grid h-[1.3em] place-items-center overflow-hidden">
       <AnimatePresence mode="popLayout" initial={false}>
         <motion.span
           key={value}

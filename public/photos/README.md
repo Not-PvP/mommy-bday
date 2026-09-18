@@ -1,15 +1,11 @@
-Drop the real photos here, named exactly:
+The real photos already went in here — photo-01.jpg through photo-13.jpg.
 
-photo-01.jpg
-photo-02.jpg
-photo-03.jpg
-photo-04.jpg
-photo-05.jpg
-photo-06.jpg
-photo-07.jpg
-photo-08.jpg
+To add or swap any, drop a new file in and update the matching entry in
+`src/data/content.ts` (the `PHOTOS` array) to point at it. Captions live
+there too — replace the "Add a caption for this memory" placeholders with
+the real ones whenever you're ready.
 
-The gallery on the site picks them up automatically — no code changes
-needed. Fewer than 8 photos is fine, the empty slots just show a "missing
-photo" placeholder instead of breaking anything. To add more than 8, or to
-edit captions, see `src/data/content.ts`.
+Keep new photos reasonably sized (under ~200KB each is plenty for how
+they're displayed) — the ones here were resized to 1400px wide and
+compressed to JPEG quality 80, which cut the total from ~19MB to ~1.2MB
+with no visible quality loss at carousel size.

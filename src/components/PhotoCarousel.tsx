@@ -86,6 +86,7 @@ function PhotoCard({
               onError={() => setFailed(true)}
               draggable={false}
               className="h-full w-full object-cover"
+              style={photo.focus ? { objectPosition: photo.focus } : undefined}
             />
           ) : (
             <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-blush-200 to-gold-300 px-4 text-center">
