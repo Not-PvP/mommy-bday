@@ -63,20 +63,36 @@ export default function Countdown() {
 
   return (
     <section className="relative flex min-h-dvh w-full flex-col items-center justify-center overflow-hidden bg-blush-50 px-6 text-center">
-      {/* morphing blob field */}
+      {/* drifting blob field — each has a fixed organic border-radius (set
+          once, not animated) so only transform moves at runtime */}
       <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="animate-blob absolute -top-24 -left-20 h-80 w-80 bg-gold-300/70 blur-2xl" />
         <div
-          className="animate-blob absolute top-1/3 -right-24 h-96 w-96 bg-coral-300/60 blur-2xl"
-          style={{ animationDelay: "-5s", animationDuration: "19s" }}
+          className="animate-blob absolute -top-24 -left-20 h-80 w-80 bg-gold-300/70 blur-xl"
+          style={{ borderRadius: "42% 58% 65% 35% / 45% 45% 55% 55%" }}
         />
         <div
-          className="animate-blob absolute -bottom-28 left-1/4 h-72 w-72 bg-candy-300/50 blur-2xl"
-          style={{ animationDelay: "-10s", animationDuration: "13s" }}
+          className="animate-blob absolute top-1/3 -right-24 h-96 w-96 bg-coral-300/60 blur-xl"
+          style={{
+            borderRadius: "62% 38% 30% 70% / 55% 62% 38% 45%",
+            animationDelay: "-5s",
+            animationDuration: "19s",
+          }}
         />
         <div
-          className="animate-blob absolute -bottom-16 -right-10 h-64 w-64 bg-maroon-600/20 blur-2xl"
-          style={{ animationDelay: "-2s", animationDuration: "17s" }}
+          className="animate-blob absolute -bottom-28 left-1/4 h-72 w-72 bg-candy-300/50 blur-xl"
+          style={{
+            borderRadius: "35% 65% 58% 42% / 40% 55% 45% 60%",
+            animationDelay: "-10s",
+            animationDuration: "13s",
+          }}
+        />
+        <div
+          className="animate-blob absolute -bottom-16 -right-10 h-64 w-64 bg-maroon-600/20 blur-xl"
+          style={{
+            borderRadius: "55% 45% 40% 60% / 50% 40% 60% 50%",
+            animationDelay: "-2s",
+            animationDuration: "17s",
+          }}
         />
       </div>
 
@@ -143,7 +159,7 @@ export default function Countdown() {
           transition={{ duration: 0.7, delay: 0.9 }}
           className="mt-10 max-w-sm text-sm font-medium text-maroon-700/70"
         >
-          September 22 — mark it on your calendar. You won&rsquo;t want to
+          September 22, mark it on your calendar. You won&rsquo;t want to
           miss this one 🎊
         </motion.p>
 

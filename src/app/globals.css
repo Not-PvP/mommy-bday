@@ -52,15 +52,6 @@ body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
-@keyframes float-slow {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-18px) rotate(3deg); }
-}
-
-.animate-float-slow {
-  animation: float-slow 6s ease-in-out infinite;
-}
-
 @keyframes balloon-rise {
   0% { transform: translateY(0) translateX(0) rotate(-4deg); opacity: 0; }
   8% { opacity: 0.85; }
@@ -71,6 +62,7 @@ body {
 
 .animate-balloon-rise {
   animation: balloon-rise linear infinite;
+  will-change: transform, opacity;
 }
 
 @keyframes drift-up {
@@ -103,23 +95,19 @@ body {
   display: none;
 }
 
-@keyframes blob-morph {
-  0%, 100% {
-    border-radius: 42% 58% 65% 35% / 45% 45% 55% 55%;
-    transform: translate(0, 0) scale(1);
-  }
-  33% {
-    border-radius: 62% 38% 30% 70% / 55% 62% 38% 45%;
-    transform: translate(4%, -5%) scale(1.08);
-  }
-  66% {
-    border-radius: 35% 65% 58% 42% / 40% 55% 45% 60%;
-    transform: translate(-4%, 4%) scale(0.95);
-  }
+/* Transform-only (no border-radius interpolation) so the browser can just
+   move an already-rasterized blurred layer on the compositor instead of
+   repainting a large blurred shape every frame — border-radius animation
+   on a blurred element was the single biggest source of jank on mobile. */
+@keyframes blob-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(4%, -5%) scale(1.08); }
+  66% { transform: translate(-4%, 4%) scale(0.95); }
 }
 
 .animate-blob {
-  animation: blob-morph 16s ease-in-out infinite;
+  animation: blob-drift 16s ease-in-out infinite;
+  will-change: transform;
 }
 
 @keyframes marquee {
@@ -129,4 +117,15 @@ body {
 
 .animate-marquee {
   animation: marquee 42s linear infinite;
+}
+
+/* Lets the browser skip layout/paint (and effectively pause animations)
+   for whole sections while they're scrolled off-screen — this page stacks
+   several animated sections on one long scroll, so without this every
+   section keeps animating even while the visitor is looking at a
+   different one. contain-intrinsic-size keeps scroll position stable
+   before a section has ever been measured. */
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 900px;
 }

@@ -6,29 +6,49 @@ import Reveal from "@/components/Reveal";
 import PhotoCarousel from "@/components/PhotoCarousel";
 import Letter from "@/components/Letter";
 import Guestbook from "@/components/Guestbook";
+import EarlyGuestbook from "@/components/EarlyGuestbook";
 import MarqueeBanner from "@/components/MarqueeBanner";
 import { BIRTHDAY_TARGET, MARQUEE_TEXT } from "@/data/content";
 
+type View = "loading" | "early-guestbook" | "countdown" | "reveal";
+
 export default function BirthdaySite() {
-  const [showReveal, setShowReveal] = useState<boolean | null>(null);
+  const [view, setView] = useState<View>("loading");
 
   useEffect(() => {
-    const forcePreview =
-      new URLSearchParams(window.location.search).get("preview") === "1";
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.get("guestbook") === "1") {
+      // window.location isn't available during SSR, so this can't be a lazy
+      // initial-state read without risking a hydration mismatch.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setView("early-guestbook");
+      return;
+    }
+
+    const forcePreview = params.get("preview") === "1";
     const check = () =>
-      setShowReveal(forcePreview || Date.now() >= BIRTHDAY_TARGET.getTime());
+      setView(
+        forcePreview || Date.now() >= BIRTHDAY_TARGET.getTime()
+          ? "reveal"
+          : "countdown"
+      );
     check();
     if (forcePreview) return;
     const interval = setInterval(check, 1000);
     return () => clearInterval(interval);
   }, []);
 
-  if (showReveal === null) {
+  if (view === "loading") {
     // Avoid a flash of the wrong state on first paint.
     return <div className="min-h-dvh w-full bg-blush-50" />;
   }
 
-  if (!showReveal) {
+  if (view === "early-guestbook") {
+    return <EarlyGuestbook />;
+  }
+
+  if (view === "countdown") {
     return <Countdown />;
   }
 

@@ -4,7 +4,7 @@ const FLAG_COLORS = ["#e2a95c", "#ff8f66", "#f2a7c3", "#cc8f3f", "#fdecdd", "#7a
 // like real paper bunting — a physical, handmade motif instead of an
 // abstract lighting effect.
 export default function Bunting({
-  count = 13,
+  count = 9,
   stringColor = "#fdecdd",
 }: {
   count?: number;

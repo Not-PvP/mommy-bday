@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import {
   addDoc,
   collection,
@@ -15,11 +15,13 @@ import {
 } from "firebase/firestore";
 import { motion } from "framer-motion";
 import { db, isFirebaseConfigured } from "@/lib/firebase";
+import FloatingDecor from "@/components/FloatingDecor";
 
 type Entry = {
   id: string;
   name: string;
   message: string;
+  imageUrl: string | null;
   createdAt: Timestamp | null;
   reactions: number;
 };
@@ -71,6 +73,21 @@ function ReactButton({ entry }: { entry: Entry }) {
   );
 }
 
+function NoteImage({ src }: { src: string }) {
+  const [failed, setFailed] = useState(false);
+  if (failed) return null;
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt=""
+      onError={() => setFailed(true)}
+      className="mb-3 max-h-56 w-full rounded-sm object-cover"
+    />
+  );
+}
+
 function NoteCard({ entry, index }: { entry: Entry; index: number }) {
   const rotation = ROTATIONS[index % ROTATIONS.length];
 
@@ -105,6 +122,8 @@ function NoteCard({ entry, index }: { entry: Entry; index: number }) {
         <p className="font-hand text-xl text-maroon-700">{entry.name}</p>
       </div>
 
+      {entry.imageUrl && <NoteImage src={entry.imageUrl} />}
+
       <p className="whitespace-pre-wrap text-maroon-900">{entry.message}</p>
 
       <div className="mt-3 flex justify-end">
@@ -114,7 +133,17 @@ function NoteCard({ entry, index }: { entry: Entry; index: number }) {
   );
 }
 
-export default function Guestbook() {
+export default function Guestbook({
+  eyebrow = "From all of us",
+  heading = "Family Guestbook",
+  description = "Leave Mommy Sonia a birthday message — it’ll show up below for everyone.",
+  badge,
+}: {
+  eyebrow?: string;
+  heading?: string;
+  description?: string;
+  badge?: ReactNode;
+} = {}) {
   // isFirebaseConfigured is a build-time constant, so this stays identical
   // between server and client renders (no hydration mismatch).
   const [entries, setEntries] = useState<Entry[] | null>(
@@ -122,9 +151,10 @@ export default function Guestbook() {
   );
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
-  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
-    "idle"
-  );
+  const [imageUrl, setImageUrl] = useState("");
+  const [status, setStatus] = useState<
+    "idle" | "sending" | "sent" | "error" | "bad-url"
+  >("idle");
 
   useEffect(() => {
     if (!isFirebaseConfigured || !db) return;
@@ -136,6 +166,7 @@ export default function Guestbook() {
           id: d.id,
           name: d.data().name ?? "Anonymous",
           message: d.data().message ?? "",
+          imageUrl: d.data().imageUrl ?? null,
           createdAt: d.data().createdAt ?? null,
           reactions: d.data().reactions ?? 0,
         }))
@@ -149,16 +180,24 @@ export default function Guestbook() {
     e.preventDefault();
     if (!name.trim() || !message.trim() || !db) return;
 
+    const trimmedUrl = imageUrl.trim();
+    if (trimmedUrl && !/^https:\/\/.+/i.test(trimmedUrl)) {
+      setStatus("bad-url");
+      return;
+    }
+
     setStatus("sending");
     try {
       await addDoc(collection(db, COLLECTION), {
         name: name.trim().slice(0, 60),
         message: message.trim().slice(0, 500),
+        ...(trimmedUrl ? { imageUrl: trimmedUrl.slice(0, 300) } : {}),
         createdAt: serverTimestamp(),
         reactions: 0,
       });
       setName("");
       setMessage("");
+      setImageUrl("");
       setStatus("sent");
       setTimeout(() => setStatus("idle"), 2500);
     } catch {
@@ -167,19 +206,17 @@ export default function Guestbook() {
   }
 
   return (
-    <section className="w-full bg-blush-50 px-6 py-20 sm:py-28">
-      <div className="mx-auto max-w-2xl">
+    <section className="cv-auto relative w-full overflow-hidden bg-blush-50 px-6 py-20 sm:py-28">
+      <FloatingDecor count={5} symbols={["♥", "✧", "❀"]} className="text-gold-400/35" />
+
+      <div className="relative mx-auto max-w-2xl">
         <div className="mb-10 text-center">
-          <p className="font-serif text-lg italic text-gold-500">
-            From all of us
-          </p>
+          {badge && <div className="mb-4 flex justify-center">{badge}</div>}
+          <p className="font-serif text-lg italic text-gold-500">{eyebrow}</p>
           <h2 className="mt-2 font-display text-3xl font-bold text-maroon-900 sm:text-4xl">
-            Family Guestbook
+            {heading}
           </h2>
-          <p className="mt-3 text-sm text-maroon-700/70">
-            Leave Mommy Sonia a birthday message — it&rsquo;ll show up below
-            for everyone.
-          </p>
+          <p className="mt-3 text-sm text-maroon-700/70">{description}</p>
         </div>
 
         {!isFirebaseConfigured && (
@@ -190,12 +227,27 @@ export default function Guestbook() {
           </div>
         )}
 
-        <form
+        <motion.form
           onSubmit={handleSubmit}
-          className="mb-14 space-y-4 rounded-2xl bg-white/70 p-6 shadow-md shadow-maroon-900/5"
+          initial={{ opacity: 0, y: 20, rotate: -1 }}
+          whileInView={{ opacity: 1, y: 0, rotate: -1 }}
+          viewport={{ once: true }}
+          transition={{ type: "spring", stiffness: 220, damping: 20 }}
+          className="relative mb-14 space-y-4 rounded-sm border border-maroon-900/10 bg-white px-6 py-8 shadow-xl shadow-maroon-900/10 sm:px-8"
         >
+          <span
+            aria-hidden
+            className="absolute -top-3 left-10 h-7 w-16 -rotate-3 rounded-[1px] bg-gold-300/80 shadow-sm"
+          />
+          <span
+            aria-hidden
+            className="absolute top-4 right-4 flex h-12 w-12 rotate-6 items-center justify-center rounded-full border-2 border-dashed border-maroon-900/15 font-hand text-lg text-maroon-900/30"
+          >
+            ✉️
+          </span>
+
           <div>
-            <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-maroon-700/70">
+            <label className="mb-1 block text-xs font-medium tracking-wide text-maroon-700/70 uppercase">
               Your name
             </label>
             <input
@@ -204,12 +256,12 @@ export default function Guestbook() {
               maxLength={60}
               required
               disabled={!isFirebaseConfigured}
-              placeholder="e.g. Tita Baby"
+              placeholder="e.g. Gelo"
               className="w-full rounded-lg border border-maroon-900/10 bg-white px-3 py-2 text-maroon-900 outline-none focus:border-gold-400 focus:ring-2 focus:ring-gold-300 disabled:opacity-50"
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-maroon-700/70">
+            <label className="mb-1 block text-xs font-medium tracking-wide text-maroon-700/70 uppercase">
               Your message
             </label>
             <textarea
@@ -223,13 +275,46 @@ export default function Guestbook() {
               className="w-full resize-none rounded-lg border border-maroon-900/10 bg-white px-3 py-2 text-maroon-900 outline-none focus:border-gold-400 focus:ring-2 focus:ring-gold-300 disabled:opacity-50"
             />
           </div>
-          <button
+          <div>
+            <label className="mb-1 block text-xs font-medium tracking-wide text-maroon-700/70 uppercase">
+              GIF or photo link{" "}
+              <span className="normal-case text-maroon-700/40">(optional)</span>
+            </label>
+            <input
+              type="url"
+              value={imageUrl}
+              onChange={(e) => {
+                setImageUrl(e.target.value);
+                if (status === "bad-url") setStatus("idle");
+              }}
+              maxLength={300}
+              disabled={!isFirebaseConfigured}
+              placeholder="Paste a Giphy or image link (https://...)"
+              className="w-full rounded-lg border border-maroon-900/10 bg-white px-3 py-2 text-maroon-900 outline-none focus:border-gold-400 focus:ring-2 focus:ring-gold-300 disabled:opacity-50"
+            />
+            <p className="mt-1 text-xs text-maroon-700/50">
+              Find one on{" "}
+              <a
+                href="https://giphy.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:text-maroon-700"
+              >
+                giphy.com
+              </a>
+              , right-click it, and copy the image link.
+            </p>
+          </div>
+          <motion.button
             type="submit"
             disabled={!isFirebaseConfigured || status === "sending"}
-            className="w-full rounded-lg bg-maroon-700 px-4 py-2.5 font-medium text-blush-50 transition-colors hover:bg-maroon-600 disabled:cursor-not-allowed disabled:opacity-50"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-maroon-700 px-4 py-2.5 font-medium text-blush-50 transition-colors hover:bg-maroon-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
+            <span aria-hidden>💌</span>
             {status === "sending" ? "Sending…" : "Sign the guestbook"}
-          </button>
+          </motion.button>
           {status === "sent" && (
             <p className="text-center text-sm text-maroon-700">
               Thank you — your message was saved 💛
@@ -240,10 +325,16 @@ export default function Guestbook() {
               Something went wrong — please try again.
             </p>
           )}
-        </form>
+          {status === "bad-url" && (
+            <p className="text-center text-sm text-red-700">
+              That link doesn&rsquo;t look right — it should start with
+              https://
+            </p>
+          )}
+        </motion.form>
       </div>
 
-      <div className="mx-auto max-w-3xl">
+      <div className="relative mx-auto max-w-3xl">
         {entries === null && (
           <p className="text-center text-sm text-maroon-700/60">
             Loading messages…

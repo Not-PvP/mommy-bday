@@ -6,7 +6,7 @@ import FloatingDecor from "@/components/FloatingDecor";
 
 export default function Letter() {
   return (
-    <section className="relative w-full overflow-hidden bg-gradient-to-b from-maroon-900 to-maroon-700 px-6 py-24 sm:py-32">
+    <section className="cv-auto relative w-full overflow-hidden bg-gradient-to-b from-maroon-900 to-maroon-700 px-6 py-24 sm:py-32">
       <FloatingDecor count={5} symbols={["♥", "✧", "❀"]} className="text-gold-300/30" />
 
       <div className="relative mx-auto max-w-2xl text-center">

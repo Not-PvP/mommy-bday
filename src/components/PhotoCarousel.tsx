@@ -204,7 +204,7 @@ export default function PhotoCarousel() {
   }, []);
 
   return (
-    <section className="relative w-full overflow-hidden bg-blush-50 py-20 sm:py-28">
+    <section className="cv-auto relative w-full overflow-hidden bg-blush-50 py-20 sm:py-28">
       <FloatingDecor count={5} symbols={["✦", "✧", "❀"]} className="text-gold-400/40" />
 
       <div className="relative mx-auto max-w-5xl px-6">

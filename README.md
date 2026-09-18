@@ -23,6 +23,19 @@ http://localhost:3000/?preview=1
 (The real date check still runs normally for everyone else — `preview=1`
 only forces the post-countdown view for whoever has that link.)
 
+To let family leave a guestbook message before the 22nd — without spoiling
+the reveal for them — send them this link instead of the main one:
+
+```
+http://localhost:3000/?guestbook=1
+```
+
+It shows only the message form and list (no countdown, no reveal, no
+photos), and writes to the exact same live guestbook everyone sees later —
+so messages left early are just already there when the site opens for
+real. Only share this link directly with the people you want writing
+early messages; it's not linked from anywhere on the main site.
+
 ## 1. Add the real photos
 
 Drop 8 images into `public/photos/` named `photo-01.jpg` through

@@ -31,10 +31,11 @@ export const PHOTOS: Photo[] = [
 
 // Edit this with your real letter — 2-3 short paragraphs is plenty.
 export const LETTER_PARAGRAPHS: string[] = [
-  "Mommy, every year I get to celebrate you feels like a gift to me, not the other way around.",
-  "Thank you for every sacrifice you never made a big deal out of, every meal, every late-night pickup, every “kaya mo yan.”",
-  "I hope today you feel even a fraction of the love you've given all of us over the years.",
-  "Happy birthday — I love you more than this website could ever show.",
+  "Mommy, every year that passes and to celebrate with you is a gift to me.",
+  "Thank you for every unseen sacrifice you made, every meal, every allowance, every “kaya mo yan.”",
+  "Today I hope you feel all the love you've given all of us over the years.",
+  "Happy birthday, Mommy! I love you more than this website could ever show.",
+  "P.S. I hope you like the website I made for you! It’s a little something to show where your sacrifices are going to.",
 ];
 
-export const LETTER_SIGNOFF = "With all my love,";
+export const LETTER_SIGNOFF = "With all my love, Gelo";

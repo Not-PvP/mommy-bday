@@ -15,7 +15,7 @@ export default function MarqueeBanner({ text }: { text: string }) {
             {repeated.map((t, i) => (
               <span
                 key={i}
-                className="font-display mx-5 whitespace-nowrap text-2xl font-bold tracking-wide text-gold-300 uppercase sm:text-4xl"
+                className="font-hand mx-5 whitespace-nowrap text-3xl font-bold text-gold-300 uppercase sm:text-5xl"
               >
                 {t}
                 <span className="mx-5 text-gold-400/70">✦</span>

@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
 import { RECIPIENT_NAME } from "@/data/content";
-import Balloon from "@/components/Balloon";
 import Bunting from "@/components/Bunting";
 
 const BALLOON_COLORS = [
@@ -12,20 +11,55 @@ const BALLOON_COLORS = [
   "#7a2e3a",
   "#f0c78a",
   "#e2a95c",
-  "#fdecdd",
   "#ff8f66",
   "#f2a7c3",
 ];
-// Two bouquets flanking the card, rather than balloons scattered loosely
-// across the whole width — reads as a deliberate arrangement instead of
-// randomly placed shapes. Sizes step down toward the edge for depth.
-const BOUQUETS = [
-  { positions: [3, 9, 15], sizes: [40, 54, 46] },
-  { positions: [85, 91, 97], sizes: [46, 54, 40] },
-];
+// Emoji instead of hand-built SVG icons — they're pre-rendered by the OS
+// and always look right at any size, unlike custom shapes which turned to
+// mush (cupcake) or looked disjointed (gift box) once actually small.
+const PARTY_EMOJI = ["🎁", "🎈", "🎂", "🎉", "🎊", "🧁", "🍰", "🎀"];
+const FLOATING_ITEM_COUNT = 16;
+
+type FloatingItem = {
+  left: number;
+  size: number;
+  emoji: string;
+  duration: number;
+  delay: number;
+};
+
+// Kept out of the 26%-74% band so nothing ever drifts across the card.
+// Math.random() can't run during render (the React Compiler flags it as
+// impure, even inside useMemo) — but Reveal only ever mounts client-side
+// (it's never part of the server-rendered countdown state), so generating
+// this once in an effect is safe: no hydration mismatch, and every visitor
+// sees a genuinely different arrangement instead of a fixed, quickly
+// noticeable repeat.
+function useFloatingItems() {
+  const [items, setItems] = useState<FloatingItem[]>([]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- randomized layout can only be computed post-mount; see comment above.
+    setItems(
+      Array.from({ length: FLOATING_ITEM_COUNT }, () => {
+        const onLeft = Math.random() < 0.5;
+        return {
+          left: onLeft ? 2 + Math.random() * 24 : 74 + Math.random() * 24,
+          size: 24 + Math.random() * 26,
+          emoji: PARTY_EMOJI[Math.floor(Math.random() * PARTY_EMOJI.length)],
+          duration: 9 + Math.random() * 9,
+          delay: -(Math.random() * 20),
+        };
+      })
+    );
+  }, []);
+
+  return items;
+}
 
 export default function Reveal() {
   const fired = useRef(false);
+  const floatingItems = useFloatingItems();
 
   useEffect(() => {
     if (fired.current) return;
@@ -62,7 +96,7 @@ export default function Reveal() {
 
   return (
     <section
-      className="relative flex min-h-dvh w-full flex-col items-center justify-center overflow-hidden px-6 py-24 text-center"
+      className="cv-auto relative flex min-h-dvh w-full flex-col items-center justify-center overflow-hidden px-6 py-24 text-center"
       style={{
         // Layered manually (rather than a Tailwind gradient class) because
         // an inline `background-image` overrides a class-based one entirely
@@ -80,26 +114,20 @@ export default function Reveal() {
       </div>
 
       <div aria-hidden className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-        {BOUQUETS.flatMap((bouquet, b) =>
-          bouquet.positions.map((left, i) => {
-            const key = `${b}-${i}`;
-            const size = bouquet.sizes[i];
-            return (
-              <Balloon
-                key={key}
-                color={BALLOON_COLORS[(b * 3 + i) % BALLOON_COLORS.length]}
-                className="absolute bottom-0 block drop-shadow-lg animate-balloon-rise"
-                style={{
-                  left: `${left}%`,
-                  width: size,
-                  height: size * 1.55,
-                  animationDuration: `${11 + i * 1.4}s`,
-                  animationDelay: `${(b * 3 + i) * -1.1}s`,
-                }}
-              />
-            );
-          })
-        )}
+        {floatingItems.map((item, i) => (
+          <span
+            key={i}
+            className="absolute bottom-0 block drop-shadow-lg animate-balloon-rise"
+            style={{
+              left: `${item.left}%`,
+              fontSize: item.size,
+              animationDuration: `${item.duration}s`,
+              animationDelay: `${item.delay}s`,
+            }}
+          >
+            {item.emoji}
+          </span>
+        ))}
       </div>
 
       <motion.div
