@@ -63,33 +63,47 @@ export default function Countdown() {
 
   return (
     <section className="relative flex min-h-dvh w-full flex-col items-center justify-center overflow-hidden bg-blush-50 px-6 text-center">
-      {/* drifting blob field — each has a fixed organic border-radius (set
-          once, not animated) so only transform moves at runtime */}
+      {/* drifting blob field — soft edges come from a radial-gradient
+          falloff, not a `blur()` filter. CSS filter:blur is one of the
+          most expensive operations on mobile GPUs (often falls back to
+          slow software rendering); a gradient fakes the same glow for
+          nearly free. Each shape's border-radius is fixed (set once, not
+          animated) so only transform moves at runtime. */}
       <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
         <div
-          className="animate-blob absolute -top-24 -left-20 h-80 w-80 bg-gold-300/70 blur-xl"
-          style={{ borderRadius: "42% 58% 65% 35% / 45% 45% 55% 55%" }}
+          className="animate-blob absolute -top-24 -left-20 h-80 w-80"
+          style={{
+            borderRadius: "42% 58% 65% 35% / 45% 45% 55% 55%",
+            background:
+              "radial-gradient(circle at 40% 35%, rgba(240,199,138,0.85) 0%, rgba(240,199,138,0.35) 50%, transparent 75%)",
+          }}
         />
         <div
-          className="animate-blob absolute top-1/3 -right-24 h-96 w-96 bg-coral-300/60 blur-xl"
+          className="animate-blob absolute top-1/3 -right-24 h-96 w-96"
           style={{
             borderRadius: "62% 38% 30% 70% / 55% 62% 38% 45%",
+            background:
+              "radial-gradient(circle at 40% 35%, rgba(255,176,143,0.75) 0%, rgba(255,176,143,0.3) 50%, transparent 75%)",
             animationDelay: "-5s",
             animationDuration: "19s",
           }}
         />
         <div
-          className="animate-blob absolute -bottom-28 left-1/4 h-72 w-72 bg-candy-300/50 blur-xl"
+          className="animate-blob absolute -bottom-28 left-1/4 h-72 w-72"
           style={{
             borderRadius: "35% 65% 58% 42% / 40% 55% 45% 60%",
+            background:
+              "radial-gradient(circle at 40% 35%, rgba(242,167,195,0.65) 0%, rgba(242,167,195,0.25) 50%, transparent 75%)",
             animationDelay: "-10s",
             animationDuration: "13s",
           }}
         />
         <div
-          className="animate-blob absolute -bottom-16 -right-10 h-64 w-64 bg-maroon-600/20 blur-xl"
+          className="animate-blob absolute -bottom-16 -right-10 h-64 w-64"
           style={{
             borderRadius: "55% 45% 40% 60% / 50% 40% 60% 50%",
+            background:
+              "radial-gradient(circle at 40% 35%, rgba(122,46,58,0.4) 0%, rgba(122,46,58,0.15) 50%, transparent 75%)",
             animationDelay: "-2s",
             animationDuration: "17s",
           }}

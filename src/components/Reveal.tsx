@@ -117,7 +117,7 @@ export default function Reveal() {
         {floatingItems.map((item, i) => (
           <span
             key={i}
-            className="absolute bottom-0 block drop-shadow-lg animate-balloon-rise"
+            className="absolute bottom-0 block animate-balloon-rise"
             style={{
               left: `${item.left}%`,
               fontSize: item.size,
