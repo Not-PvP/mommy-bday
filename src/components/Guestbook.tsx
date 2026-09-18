@@ -146,7 +146,7 @@ function NoteCard({ entry, index }: { entry: Entry; index: number }) {
 
 export default function Guestbook({
   eyebrow = "From all of us",
-  heading = "Family Guestbook",
+  heading = "Guestbooks",
   description = "Leave Mommy Sonia a birthday message — it’ll show up below for everyone.",
   badge,
 }: {
