@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { BIRTHDAY_TARGET, COUNTDOWN_HEADLINE, TEASER_LINE } from "@/data/content";
 import FloatingDecor from "@/components/FloatingDecor";
 import ExcitedReactor from "@/components/ExcitedReactor";
+import Bunting from "@/components/Bunting";
 
 function getTimeLeft(target: Date) {
   const diff = Math.max(0, target.getTime() - Date.now());
@@ -81,6 +82,10 @@ export default function Countdown() {
 
       <FloatingDecor count={7} symbols={["🎈", "✨", "🎉"]} className="text-2xl opacity-70" />
 
+      <div className="absolute top-0 left-0 z-10 w-full">
+        <Bunting stringColor="#5c2029" />
+      </div>
+
       <div className="relative z-10 flex flex-col items-center">
         <motion.p
           initial={{ opacity: 0, y: -8, rotate: -6 }}
@@ -116,12 +121,16 @@ export default function Countdown() {
                 ease: "easeInOut",
                 delay: i * 0.2,
               }}
-              className={`flex w-16 flex-col items-center rounded-[1.5rem] border-[3px] bg-white px-2 py-4 shadow-xl shadow-maroon-900/15 sm:w-24 sm:py-6 ${CARD_ACCENTS[i % CARD_ACCENTS.length]}`}
+              className={`relative flex w-16 flex-col items-center rounded-[1.5rem] border-[3px] bg-white pt-4 pb-2.5 shadow-xl shadow-maroon-900/15 sm:w-24 sm:pt-6 sm:pb-3.5 ${CARD_ACCENTS[i % CARD_ACCENTS.length]}`}
             >
+              {/* ticket-stub perforation notches + tear line */}
+              <span className="absolute top-1/2 -left-1.5 h-3 w-3 -translate-y-1/2 rounded-full bg-blush-50" />
+              <span className="absolute top-1/2 -right-1.5 h-3 w-3 -translate-y-1/2 rounded-full bg-blush-50" />
+
               <span className="font-display text-3xl font-black tabular-nums text-maroon-700 sm:text-5xl">
                 <DigitFlip value={timeLeft ? String(timeLeft[key]).padStart(2, "0") : "--"} />
               </span>
-              <span className="mt-1 text-[10px] font-semibold uppercase tracking-widest text-maroon-700/60 sm:text-xs">
+              <span className="mt-2 w-full border-t-2 border-dashed border-maroon-900/15 pt-1 text-center text-[10px] font-semibold uppercase tracking-widest text-maroon-700/60 sm:mt-3 sm:text-xs">
                 {label}
               </span>
             </motion.div>

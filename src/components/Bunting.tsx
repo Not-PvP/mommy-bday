@@ -3,7 +3,13 @@ const FLAG_COLORS = ["#e2a95c", "#ff8f66", "#f2a7c3", "#cc8f3f", "#fdecdd", "#7a
 // A strip of party flags strung along a drooping line, each swaying gently
 // like real paper bunting — a physical, handmade motif instead of an
 // abstract lighting effect.
-export default function Bunting({ count = 13 }: { count?: number }) {
+export default function Bunting({
+  count = 13,
+  stringColor = "#fdecdd",
+}: {
+  count?: number;
+  stringColor?: string;
+}) {
   const width = 400;
   const height = 70;
   const sag = 34;
@@ -28,7 +34,7 @@ export default function Bunting({ count = 13 }: { count?: number }) {
       preserveAspectRatio="none"
       className="block h-16 w-full sm:h-20"
     >
-      <path d={stringPath} stroke="#fdecdd" strokeOpacity="0.55" strokeWidth="1.5" fill="none" />
+      <path d={stringPath} stroke={stringColor} strokeOpacity="0.55" strokeWidth="1.5" fill="none" />
       {flags.map((flag, i) => (
         <polygon
           key={i}

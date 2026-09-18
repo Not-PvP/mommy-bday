@@ -19,7 +19,10 @@ export default function FloatingDecor({
           key={i}
           className={`absolute bottom-0 block select-none text-xl animate-drift-up ${className}`}
           style={{
-            left: `${((i + 1) * 97) % 100}%`,
+            // Golden-angle spacing (~61.8% steps) spreads items evenly across
+            // the full width even for small counts — a plain `* N % 100`
+            // step can land on a small cycle and bunch everything together.
+            left: `${(5 + i * 61.8) % 100}%`,
             animationDuration: `${13 + ((i * 7) % 10)}s`,
             animationDelay: `${-(i * 3.1)}s`,
           }}
