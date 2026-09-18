@@ -2,10 +2,10 @@ rules_version = '2';
 
 // Paste this into Firebase Console > Firestore Database > Rules, then Publish.
 // Anyone with the link can read the guestbook, add a new message (optionally
-// with an https:// GIF/photo link), and bump the reaction count on an
-// existing one (by exactly +1 at a time, touching no other field). Deleting
-// or editing someone else's message is blocked — do that from the console
-// if it's ever needed.
+// with an https:// GIF/photo link and a sticky-note color from the fixed
+// palette), and bump the reaction count on an existing one (by exactly +1
+// at a time, touching no other field). Deleting or editing someone else's
+// message is blocked — do that from the console if it's ever needed.
 service cloud.firestore {
   match /databases/{database}/documents {
     match /guestbook/{entryId} {
@@ -21,7 +21,10 @@ service cloud.firestore {
         && (!request.resource.data.keys().hasAny(['imageUrl'])
             || (request.resource.data.imageUrl is string
                 && request.resource.data.imageUrl.size() <= 300
-                && request.resource.data.imageUrl.matches('^https://.+')));
+                && request.resource.data.imageUrl.matches('^https://.+')))
+        && (!request.resource.data.keys().hasAny(['noteColor'])
+            || request.resource.data.noteColor in
+               ['#fff3da', '#ffe6d9', '#fbe1e8', '#f5e9d8', '#f7e2b8', '#ffd9c7']);
 
       allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reactions'])
         && request.resource.data.reactions is int

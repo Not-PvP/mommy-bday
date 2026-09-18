@@ -22,6 +22,7 @@ type Entry = {
   name: string;
   message: string;
   imageUrl: string | null;
+  noteColor: string | null;
   createdAt: Timestamp | null;
   reactions: number;
 };
@@ -29,7 +30,17 @@ type Entry = {
 const COLLECTION = "guestbook";
 
 const AVATAR_COLORS = ["#cc8f3f", "#7a2e3a", "#e2a95c", "#5c2029", "#b97a86"];
-const NOTE_COLORS = ["#fff3da", "#ffe6d9", "#fbe1e8", "#f5e9d8"];
+// Also the picker options in the form — kept as one list so "what colors
+// can a note be" only needs updating in one place.
+const NOTE_COLOR_OPTIONS = [
+  { value: "#fff3da", label: "Cream" },
+  { value: "#ffe6d9", label: "Peach" },
+  { value: "#fbe1e8", label: "Rose" },
+  { value: "#f5e9d8", label: "Blush" },
+  { value: "#f7e2b8", label: "Gold" },
+  { value: "#ffd9c7", label: "Coral" },
+];
+const NOTE_COLORS = NOTE_COLOR_OPTIONS.map((c) => c.value);
 const ROTATIONS = [-2.5, 2, -1.5, 3, -3, 1.5];
 
 function avatarColor(name: string) {
@@ -99,7 +110,7 @@ function NoteCard({ entry, index }: { entry: Entry; index: number }) {
       viewport={{ once: true, margin: "-40px" }}
       transition={{ type: "spring", stiffness: 260, damping: 22, delay: (index % 6) * 0.06 }}
       className="relative mb-5 break-inside-avoid rounded-sm px-5 py-4 shadow-lg shadow-maroon-900/15"
-      style={{ backgroundColor: NOTE_COLORS[index % NOTE_COLORS.length] }}
+      style={{ backgroundColor: entry.noteColor ?? NOTE_COLORS[index % NOTE_COLORS.length] }}
     >
       {/* folded corner */}
       <span
@@ -152,6 +163,7 @@ export default function Guestbook({
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [noteColor, setNoteColor] = useState(NOTE_COLOR_OPTIONS[0].value);
   const [status, setStatus] = useState<
     "idle" | "sending" | "sent" | "error" | "bad-url"
   >("idle");
@@ -167,6 +179,7 @@ export default function Guestbook({
           name: d.data().name ?? "Anonymous",
           message: d.data().message ?? "",
           imageUrl: d.data().imageUrl ?? null,
+          noteColor: d.data().noteColor ?? null,
           createdAt: d.data().createdAt ?? null,
           reactions: d.data().reactions ?? 0,
         }))
@@ -192,6 +205,7 @@ export default function Guestbook({
         name: name.trim().slice(0, 60),
         message: message.trim().slice(0, 500),
         ...(trimmedUrl ? { imageUrl: trimmedUrl.slice(0, 300) } : {}),
+        noteColor,
         createdAt: serverTimestamp(),
         reactions: 0,
       });
@@ -304,6 +318,32 @@ export default function Guestbook({
               </a>
               , right-click it, and copy the image link.
             </p>
+          </div>
+          <div>
+            <label className="mb-2 block text-xs font-medium tracking-wide text-maroon-700/70 uppercase">
+              Sticky note color
+            </label>
+            <div className="flex flex-wrap gap-2.5">
+              {NOTE_COLOR_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  disabled={!isFirebaseConfigured}
+                  onClick={() => setNoteColor(option.value)}
+                  aria-label={option.label}
+                  aria-pressed={noteColor === option.value}
+                  className="h-9 w-9 rounded-full transition-transform disabled:opacity-50"
+                  style={{
+                    backgroundColor: option.value,
+                    boxShadow:
+                      noteColor === option.value
+                        ? "0 0 0 2px white, 0 0 0 4px var(--color-maroon-700)"
+                        : "0 0 0 1px rgba(58,20,24,0.12)",
+                    transform: noteColor === option.value ? "scale(1.1)" : undefined,
+                  }}
+                />
+              ))}
+            </div>
           </div>
           <motion.button
             type="submit"
