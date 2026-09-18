@@ -16,9 +16,13 @@ const BALLOON_COLORS = [
   "#ff8f66",
   "#f2a7c3",
 ];
-const BALLOON_SIZES = [46, 58, 40, 52, 44, 60, 48, 38];
-// Kept out of the 28%-72% band so they never drift across the paper card.
-const BALLOON_POSITIONS = [3, 11, 19, 27, 73, 81, 89, 97];
+// Two bouquets flanking the card, rather than balloons scattered loosely
+// across the whole width — reads as a deliberate arrangement instead of
+// randomly placed shapes. Sizes step down toward the edge for depth.
+const BOUQUETS = [
+  { positions: [3, 9, 15], sizes: [40, 54, 46] },
+  { positions: [85, 91, 97], sizes: [46, 54, 40] },
+];
 
 export default function Reveal() {
   const fired = useRef(false);
@@ -57,26 +61,45 @@ export default function Reveal() {
   }, []);
 
   return (
-    <section className="relative flex min-h-dvh w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-maroon-700 to-maroon-900 px-6 py-24 text-center">
+    <section
+      className="relative flex min-h-dvh w-full flex-col items-center justify-center overflow-hidden px-6 py-24 text-center"
+      style={{
+        // Layered manually (rather than a Tailwind gradient class) because
+        // an inline `background-image` overrides a class-based one entirely
+        // — the dot texture and the maroon backdrop have to be one value.
+        // A single evenly-spaced layer reads as a deliberate polka-dot grid
+        // instead of scattered noise.
+        backgroundImage:
+          "radial-gradient(circle, rgba(240,199,138,0.22) 2px, transparent 2px), linear-gradient(to bottom, var(--color-maroon-700), var(--color-maroon-900))",
+        backgroundSize: "28px 28px, 100% 100%",
+        backgroundPosition: "0 0, 0 0",
+      }}
+    >
       <div className="absolute top-0 left-0 z-10 w-full">
         <Bunting />
       </div>
 
       <div aria-hidden className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-        {BALLOON_POSITIONS.map((left, i) => (
-          <Balloon
-            key={i}
-            color={BALLOON_COLORS[i % BALLOON_COLORS.length]}
-            className="absolute bottom-0 block drop-shadow-lg animate-balloon-rise"
-            style={{
-              left: `${left}%`,
-              width: BALLOON_SIZES[i % BALLOON_SIZES.length],
-              height: BALLOON_SIZES[i % BALLOON_SIZES.length] * 1.55,
-              animationDuration: `${10 + (i % 4) * 1.8}s`,
-              animationDelay: `${i * -1.6}s`,
-            }}
-          />
-        ))}
+        {BOUQUETS.flatMap((bouquet, b) =>
+          bouquet.positions.map((left, i) => {
+            const key = `${b}-${i}`;
+            const size = bouquet.sizes[i];
+            return (
+              <Balloon
+                key={key}
+                color={BALLOON_COLORS[(b * 3 + i) % BALLOON_COLORS.length]}
+                className="absolute bottom-0 block drop-shadow-lg animate-balloon-rise"
+                style={{
+                  left: `${left}%`,
+                  width: size,
+                  height: size * 1.55,
+                  animationDuration: `${11 + i * 1.4}s`,
+                  animationDelay: `${(b * 3 + i) * -1.1}s`,
+                }}
+              />
+            );
+          })
+        )}
       </div>
 
       <motion.div

@@ -7,10 +7,14 @@ import { motion } from "framer-motion";
 import { db, isFirebaseConfigured } from "@/lib/firebase";
 
 const REACTED_FLAG = "mombday-excited-reacted";
+const LOCAL_COUNT_FLAG = "mombday-excited-local-count";
 const DOC_PATH = ["reactions", "excited"] as const;
 
 export default function ExcitedReactor() {
-  const [count, setCount] = useState<number | null>(null);
+  // Starts at 0 (not null) so "Be the first to react!" shows immediately
+  // even before the Firestore subscription connects — this is a build-time
+  // constant-free default, so it's identical between server and client.
+  const [count, setCount] = useState(0);
   const [reacted, setReacted] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -22,13 +26,23 @@ export default function ExcitedReactor() {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setReacted(true);
     }
+    const storedCount = Number(window.localStorage.getItem(LOCAL_COUNT_FLAG));
+    if (storedCount > 0) {
+      setCount(storedCount);
+    }
   }, []);
 
   useEffect(() => {
     if (!isFirebaseConfigured || !db) return;
     const unsubscribe = onSnapshot(
       doc(db, ...DOC_PATH),
-      (snap) => setCount(snap.data()?.count ?? 0),
+      (snap) => {
+        const serverCount = snap.data()?.count ?? 0;
+        // Never let a lagging/blocked server read regress what this visitor
+        // has already seen locally (e.g. their own tap before rules were
+        // published) — always show whichever is higher.
+        setCount((c) => Math.max(c, serverCount));
+      },
       () => {
         // Permission-denied until firestore.rules is republished with the
         // reactions match — fail quietly, the button still works locally.
@@ -41,6 +55,14 @@ export default function ExcitedReactor() {
     if (!db || reacted) return;
     setReacted(true);
     window.localStorage.setItem(REACTED_FLAG, "1");
+    // Optimistic bump, persisted locally too so it survives a reload even
+    // if the Firestore write below silently fails (e.g. rules not yet
+    // published) — the tapper's own count should never revert to 0.
+    setCount((c) => {
+      const next = c + 1;
+      window.localStorage.setItem(LOCAL_COUNT_FLAG, String(next));
+      return next;
+    });
 
     const button = buttonRef.current;
     if (button) {
@@ -86,15 +108,16 @@ export default function ExcitedReactor() {
         <span className="text-2xl">🎉</span>
         {reacted ? "Yes, so excited!" : "Tap to react"}
       </motion.button>
-      {count !== null && count > 0 && (
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-sm font-medium text-maroon-700/70"
-        >
-          {count} {count === 1 ? "person is" : "people are"} excited so far 🎊
-        </motion.p>
-      )}
+      <motion.p
+        key={count}
+        initial={{ opacity: 0, y: -4 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-sm font-medium text-maroon-700/70"
+      >
+        {count > 0
+          ? `${count} ${count === 1 ? "person is" : "people are"} excited so far 🎊`
+          : "Be the first to react!"}
+      </motion.p>
     </div>
   );
 }
