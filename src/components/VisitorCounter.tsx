@@ -63,10 +63,10 @@ export default function VisitorCounter() {
 
   return (
     <motion.p
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 1.6 }}
-      className="text-sm font-medium text-maroon-700/70"
+      className="inline-flex items-center gap-1.5 rounded-full bg-white/90 px-4 py-2 text-sm font-semibold text-maroon-700 shadow-md shadow-maroon-900/15"
     >
       💛 {count} {count === 1 ? "person has" : "people have"} stopped by to
       celebrate with you
